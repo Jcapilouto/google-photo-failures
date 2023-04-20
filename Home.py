@@ -126,5 +126,15 @@ if __name__ == "__main__":
 
 
             for index, row in df.iterrows():
-                st.write(row)
                 st.image(row['PHOTO_URL'])
+                st.markdown(f'''
+                **Error Type**: {row['TYPE']}  
+                **Error Reason**: {row['ERROR_TEXT']}  
+                **Photo URL**:  {row['PHOTO_URL']}
+                ''')
+
+
+                
+                st.divider()
+
+                    
