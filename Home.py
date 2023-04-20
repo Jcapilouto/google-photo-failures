@@ -128,6 +128,7 @@ if __name__ == "__main__":
             for index, row in df.iterrows():
                 st.image(row['PHOTO_URL'])
                 st.markdown(f'''
+                **Entity ID**: {row['Entity ID']}  
                 **Error Type**: {row['TYPE']}  
                 **Error Reason**: {row['ERROR_TEXT']}  
                 **Photo URL**:  {row['PHOTO_URL']}
@@ -137,4 +138,4 @@ if __name__ == "__main__":
                 
                 st.divider()
 
-                    
+                
