@@ -30,70 +30,101 @@ def convert_df(df):
     return df.to_csv().encode('utf-8')
 
 
+
+def check_password():
+    """Returns `True` if the user had the correct password."""
+
+    def password_entered():
+        """Checks whether a password entered by the user is correct."""
+        if st.session_state["pw"] == st.secrets["pw"]:
+            st.session_state["password_correct"] = True
+            del st.session_state["pw"]  # don't store password
+        else:
+            st.session_state["password_correct"] = False
+
+    if "password_correct" not in st.session_state:
+        # First run, show input for password.
+        st.text_input(
+            "Password", type="password", on_change=password_entered, key="pw"
+        )
+        return False
+    elif not st.session_state["password_correct"]:
+        # Password not correct, show input + error.
+        st.text_input(
+            "Password", type="password", on_change=password_entered, key="pw"
+        )
+        st.error("😕 Password incorrect")
+        return False
+    else:
+        # Password correct.
+        return True
+
+
+
+
 if __name__ == "__main__":
     st.set_page_config(
         page_title="Google Photo Failures",
         page_icon="📷",
     )
-    st.title("Find Failed Google Photos")
+    if check_password():
 
-    conn = init_connection()
+        st.title("Find Failed Google Photos")
 
-    with st.form("Form"):
+        conn = init_connection()
 
-        option = st.radio(
-            "Search By",
-            ('Business ID', 'Entity ID'))
+        with st.form("Form"):
 
-        id = st.text_input("Enter ID:")
+            option = st.radio(
+                "Search By",
+                ('Business ID', 'Entity ID'))
 
-        form_submitted = st.form_submit_button("Find Photo Failures")
+            id = st.text_input("Enter ID:")
 
-    if form_submitted:
-        if option == 'Business ID':
-            query = f'''
-                with failed_urls as
-                (
-                    select distinct entity_id, photo_url, type, error_text
-                    from "PROD_LISTINGS_LOCAL"."PUBLIC"."GOOGLE_PHOTO_ERRORS"
-                    where business_id = {id}
-                )
-                select to_varchar(pfd.entity_id) as "Entity ID", f.photo_url, f.type, f.error_text
-                from failed_urls f
-                join "PROD_KNOWLEDGE"."PUBLIC"."PROFILE_FIELD_DATA_BY_BUSINESS" pfd on pfd.entity_id = f.entity_id
-                where pfd.field_id = 'location.gallery'
-                and contains(to_varchar(pfd.field_raw_value), substr(photo_url, 8));
-            '''
-        else:
-            query = f'''
-                with failed_urls as
-                (
-                    select distinct entity_id, photo_url, type, error_text
-                    from "PROD_LISTINGS_LOCAL"."PUBLIC"."GOOGLE_PHOTO_ERRORS"
-                    where entity_id = {id}
-                )
-                select to_varchar(pfd.entity_id) as "Entity ID", f.photo_url, f.type, f.error_text
-                from failed_urls f
-                join "PROD_KNOWLEDGE"."PUBLIC"."PROFILE_FIELD_DATA_BY_BUSINESS" pfd on pfd.entity_id = f.entity_id
-                where pfd.field_id = 'location.gallery'
-                and contains(to_varchar(pfd.field_raw_value), substr(photo_url, 8));
-            '''
+            form_submitted = st.form_submit_button("Find Photo Failures")
 
-        df = run_query(query)
+        if form_submitted:
+            if option == 'Business ID':
+                query = f'''
+                    with failed_urls as
+                    (
+                        select distinct entity_id, photo_url, type, error_text
+                        from "PROD_LISTINGS_LOCAL"."PUBLIC"."GOOGLE_PHOTO_ERRORS"
+                        where business_id = {id}
+                    )
+                    select to_varchar(pfd.entity_id) as "Entity ID", f.photo_url, f.type, f.error_text
+                    from failed_urls f
+                    join "PROD_KNOWLEDGE"."PUBLIC"."PROFILE_FIELD_DATA_BY_BUSINESS" pfd on pfd.entity_id = f.entity_id
+                    where pfd.field_id = 'location.gallery'
+                    and contains(to_varchar(pfd.field_raw_value), substr(photo_url, 8));
+                '''
+            else:
+                query = f'''
+                    with failed_urls as
+                    (
+                        select distinct entity_id, photo_url, type, error_text
+                        from "PROD_LISTINGS_LOCAL"."PUBLIC"."GOOGLE_PHOTO_ERRORS"
+                        where entity_id = {id}
+                    )
+                    select to_varchar(pfd.entity_id) as "Entity ID", f.photo_url, f.type, f.error_text
+                    from failed_urls f
+                    join "PROD_KNOWLEDGE"."PUBLIC"."PROFILE_FIELD_DATA_BY_BUSINESS" pfd on pfd.entity_id = f.entity_id
+                    where pfd.field_id = 'location.gallery'
+                    and contains(to_varchar(pfd.field_raw_value), substr(photo_url, 8));
+                '''
 
-        csv = convert_df(df)
+            df = run_query(query)
 
-        st.download_button(
-            label="Download All",
-            data=csv,
-            file_name='result.csv',
-            mime='text/csv',
-        )
+            csv = convert_df(df)
 
-        #df
+            st.download_button(
+                label="Download All",
+                data=csv,
+                file_name='result.csv',
+                mime='text/csv',
+            )
 
-        for index, row in df.iterrows():
-            st.write(row)
-            st.image(row['PHOTO_URL'])
 
-        #st.image('http://a.mktgcdn.com/p/9wMZHTZSnXMrfeSfUwXEAo-Wl4xcSKi8AUJvbFpOH2Q/417x417.png')
+            for index, row in df.iterrows():
+                st.write(row)
+                st.image(row['PHOTO_URL'])
