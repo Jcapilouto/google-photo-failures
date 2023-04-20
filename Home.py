@@ -81,7 +81,7 @@ if __name__ == "__main__":
 
             id = st.text_input("Enter ID:")
 
-            form_submitted = st.form_submit_button("Find Photo Failures")
+            form_submitted = st.form_submit_button("Find Photos")
 
         if form_submitted:
             if option == 'Business ID':
@@ -128,7 +128,7 @@ if __name__ == "__main__":
             for index, row in df.iterrows():
                 st.image(row['PHOTO_URL'])
                 st.markdown(f'''
-                **Entity ID**: {row['Entity ID']}  
+                **Entity ID**: {row['Entity ID']}  [(View)](https://www.yext.com/s/me/entity/edit3?entityIds={row['Entity ID']})  
                 **Error Type**: {row['TYPE']}  
                 **Error Reason**: {row['ERROR_TEXT']}  
                 **Photo URL**:  {row['PHOTO_URL']}
@@ -138,4 +138,4 @@ if __name__ == "__main__":
                 
                 st.divider()
 
-                
+                    
