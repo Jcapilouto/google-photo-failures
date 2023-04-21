@@ -67,7 +67,10 @@ if __name__ == "__main__":
         page_title="Google Photo Failures",
         page_icon="📷",
     )
+    st.warning('This app is for internal use only and should not be shared with customers', icon="⚠️")
+
     if check_password():
+
 
         st.title("Find Failed Google Photos")
 
