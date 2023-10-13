@@ -98,7 +98,7 @@ if __name__ == "__main__":
                     select to_varchar(pfd.entity_id) as "Entity ID", f.photo_url, f.type, f.error_text
                     from failed_urls f
                     join "PROD_KNOWLEDGE"."PUBLIC"."PROFILE_FIELD_DATA_BY_BUSINESS" pfd on pfd.entity_id = f.entity_id
-                    where pfd.field_id = 'location.gallery'
+                    where pfd.field_id in ('location.gallery', 'location.business_logo')
                     and contains(to_varchar(pfd.field_raw_value), substr(photo_url, 8));
                 '''
             else:
@@ -112,7 +112,7 @@ if __name__ == "__main__":
                     select to_varchar(pfd.entity_id) as "Entity ID", f.photo_url, f.type, f.error_text
                     from failed_urls f
                     join "PROD_KNOWLEDGE"."PUBLIC"."PROFILE_FIELD_DATA_BY_BUSINESS" pfd on pfd.entity_id = f.entity_id
-                    where pfd.field_id = 'location.gallery'
+                    where pfd.field_id in ('location.gallery', 'location.business_logo')
                     and contains(to_varchar(pfd.field_raw_value), substr(photo_url, 8));
                 '''
 
